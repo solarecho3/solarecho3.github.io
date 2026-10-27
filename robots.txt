@@ -10,4 +10,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-Sitemap: https://solarecho3.github.io/personal-site/sitemap.xml
+Sitemap: https://solarecho3.github.io/sitemap.xml

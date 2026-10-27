@@ -7,11 +7,11 @@
 - Prior: Applied AI Engineer, USSOCOM Intelligence Data Science Team (2021–2025)
 - Military: US Army Special Forces (Green Beret), 2007–2023; Ranger, Jumpmaster, Combat Diver; combat valor awards
 - Focus areas: agentic systems, visual AI, multi-source intelligence fusion, operational decision support
-- Site: https://solarecho3.github.io/personal-site/
+- Site: https://solarecho3.github.io/
 - X: https://x.com/solarecho3
 - Instagram: https://www.instagram.com/solarecho3
 - GitHub: https://github.com/solarecho3
 
 ## Pages
-- [Personal site](https://solarecho3.github.io/personal-site/): Canonical bio, career timeline, and links
+- [Personal site](https://solarecho3.github.io/): Canonical bio, career timeline, and links
 - [Larx](https://larx.io): Company and product
