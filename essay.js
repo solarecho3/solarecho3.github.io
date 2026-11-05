@@ -209,12 +209,62 @@
     return /^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/.exec(line.trim());
   }
 
+  function isExplorer(line) {
+    return line.trim() === ":::explorer";
+  }
+
   function isBlockStart(line) {
-    return isFence(line) || isRule(line) || isHeading(line) || isBullet(line) || isNumber(line) || isQuote(line) || isImage(line);
+    return isFence(line) || isRule(line) || isHeading(line) || isBullet(line) || isNumber(line) || isQuote(line) || isImage(line) || isExplorer(line);
   }
 
   function headingId(text) {
     return String(text || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  }
+
+  function essayAssetPrefix() {
+    var nodes = document.querySelectorAll("script[src]");
+    for (var i = 0; i < nodes.length; i++) {
+      var src = nodes[i].getAttribute("src") || "";
+      if (/essay\.js(?:\?.*)?$/.test(src)) return src.replace(/essay\.js(?:\?.*)?$/, "");
+    }
+    return "../";
+  }
+
+  function loadChain(urls, slot) {
+    var index = 0;
+    function next() {
+      if (index >= urls.length) return;
+      var script = document.createElement("script");
+      script.src = urls[index];
+      index += 1;
+      script.onload = next;
+      script.onerror = function () {
+        if (!slot.querySelector("#app")) slot.textContent = "The ideologies explorer did not load.";
+      };
+      document.body.appendChild(script);
+    }
+    next();
+  }
+
+  function addExplorer(container) {
+    var slot = document.createElement("div");
+    slot.className = "ideo-slot";
+    slot.setAttribute("data-explorer", "ideologies");
+    if (editingHost(container)) {
+      slot.classList.add("is-placeholder");
+      slot.setAttribute("contenteditable", "false");
+      slot.textContent = "Ideologies explorer";
+      container.appendChild(slot);
+      return;
+    }
+    container.appendChild(slot);
+    var prefix = essayAssetPrefix();
+    loadChain([
+      prefix + "ideologies/three.min.js",
+      prefix + "ideologies/OrbitControls.js",
+      prefix + "ideologies/data.js",
+      prefix + "ideologies/app.js"
+    ], slot);
   }
 
   function addFigure(container, alt, url) {
@@ -1032,6 +1082,11 @@
     while (index < lines.length) {
       var line = lines[index];
       if (line.trim() === "") {
+        index += 1;
+        continue;
+      }
+      if (isExplorer(line)) {
+        addExplorer(container);
         index += 1;
         continue;
       }

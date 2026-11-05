@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>try { var saved = localStorage.getItem("theme"); if (saved === "dark" || (saved !== "light" && matchMedia("(prefers-color-scheme: dark)").matches)) document.documentElement.setAttribute("data-theme", "dark"); } catch (e) {}</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ideologies · Adam Smith</title>
+  <link rel="icon" href="../favicon.svg">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header>
+    <div class="identity">
+      <h1><a href="../">Adam Smith</a></h1>
+      <p class="meta">soldier, cto</p>
+      <p class="lede">- Co-founder, CTO - <a href="https://larx.io">Larx</a>.<br>
+      - US Special Operations Command Data Scientist / Analyst.<br>
+      - American special operator.</p>
+      <p class="socials"><a href="https://x.com/solarecho3" rel="me" target="#">X</a> · <a href="https://www.instagram.com/solarecho3" rel="me" target="#">Instagram</a> · <a href="https://github.com/solarecho3" rel="me" target="#">GitHub</a></p>
+    </div>
+    <div class="side">
+      <nav>
+        <a href="../#career">Career</a>
+        <a href="../#journal">Journal</a>
+        <a href="../#media">Media</a>
+      </nav>
+      <span class="theme">
+        <button type="button" data-theme-set="light">Light</button>
+        <button type="button" data-theme-set="dark">Dark</button>
+      </span>
+    </div>
+  </header>
+  <main>
+    <article class="essay">
+      <h1>Ideologies</h1>
+      <p class="where">Where each party stood on the same policy questions, from 1789 to 2027.</p>
+      <p class="tags"><a href="../#journal/ideology">ideology</a> · <a href="../#journal/politics">politics</a> · <a href="../#journal/history">history</a></p>
+      <div id="essay-body"></div>
+      <textarea id="essay-source" hidden>This page places the major parties in Congress on the same policy questions from 1789 to 2027. The parties drawn are the Federalists, the Democratic-Republicans, the Whigs, the Democrats, and the Republicans. A party is drawn in the years it held seats in the House or the Senate.
+
+The usual score for a member of Congress is calculated from roll calls. A roll call is a recorded vote. DW-NOMINATE is one of those scores. It gives each member a number from the votes, so that members who vote alike sit near each other on the scale. The same number in 1890 and in 2020 means a similar place against the bills of those years. The bills are different, so the number does not name a policy.
+
+This chart holds the questions fixed. A dimension is one policy question. Its two ends are written once, in words about the policy, and those words are used in every year. The chart has eighteen dimensions. A mark on a dimension is a coded judgment. A coded judgment means a person read a source and chose the mark: a roll call, with how many in the party voted yes and how many voted no; a platform, the party's written program for an election; a statute, a law passed by Congress; or a named work of scholarship. The source is stored with the mark. The mark is not calculated from the pattern of votes alone.
+
+A codebook is the written list of those questions and their two ends. Where sources support two different marks, both are kept. A diamond on the chart is a documented fact, such as a statute or a published finding, kept apart from the party marks. The year 2027 is the Congress that convenes that January. Its seat counts are a VoteHub estimate as of 4 November 2026. VoteHub is a public tally of seats already called and seats still expected. The party marks for 2027 are the marks of the Congress before it, carried forward.
+
+Each spoke, the line from the center to the rim, is one policy question with the same two ends in every year. That question is a dimension. −2 is one end, +2 is the other, and the grey ring is 0, the middle.
+
+A Congress is one two-year sitting of the House and the Senate, counted from 1789. Each party is a surface through those years. The bold outline is the Congress chosen with the slider, the control along the bottom.
+
+Salience is how present that question is in the roll calls of that Congress. A roll call is a recorded vote. The spoke is drawn faint when salience is low. A dashed line is a contested reading: a low value and a high value from sources that disagree. The band under the chart is press alignment, from a hostile press to a friendly one. A diamond is a documented fact, not a rating of a party.
+
+:::explorer
+
+Seat counts for these Congresses are in the [seat-count explorer](seats.html).
+</textarea>
+    </article>
+  </main>
+  <noscript><p>Enable JavaScript to read this journal entry.</p></noscript>
+  <script src="../theme.js"></script>
+  <script defer src="../essay.js"></script>
+</body>
+</html>
