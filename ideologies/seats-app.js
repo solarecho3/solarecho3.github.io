@@ -89,18 +89,17 @@
         }
       });
       const vh = D.votehub[ch];
-      Object.entries(vh).forEach(([p, [cl, es]]) => {
-        const x0 = x(2025), y0 = y(seats[ch][p][119]), x1 = x(2027);
-        el("line", { x1: x0, y1: y0, x2: x1, y2: y(es), stroke: PC[p], "stroke-width": 1.2, "stroke-dasharray": "4 2" }, svg);
-        el("line", { x1: x0, y1: y0, x2: x1, y2: y(cl), stroke: PC[p], "stroke-width": .9, "stroke-dasharray": "1 1.5" }, svg);
-        el("circle", { cx: x1, cy: y(es), r: 3.2, fill: t.paper, stroke: PC[p], "stroke-width": 1.3 }, svg);
-        el("circle", { cx: x1, cy: y(cl), r: 2, fill: PC[p] }, svg);
-        const off = (p == "Democratic" ? -1 : 1) * (ch == "House" ? 10 : 5) * (vh.Democratic[1] > vh.Republican[1] ? -1 : 1);
-        const lab = el("text", { x: x1 + 6, y: y(es) - off, "font-size": 10.5, "font-weight": "bold", fill: PC[p] }, svg);
-        lab.textContent = `${p} est. ${es}`;
-        const lab2 = el("text", { x: x1 + 6, y: y(es) - off + 11, "font-size": 9.5, fill: PC[p] }, svg);
-        lab2.textContent = `called ${cl} · VoteHub 2027`;
+      const x1 = x(2027);
+      Object.entries(vh).forEach(([p, pair]) => {
+        if (!Array.isArray(pair) || seats[ch][p]?.[119] == null) return;
+        const cl = pair[0], y0 = y(seats[ch][p][119]), y1 = y(cl);
+        el("line", { x1: x(2025), y1: y0, x2: x1, y2: y1, stroke: PC[p], "stroke-width": 1.2, "stroke-dasharray": "1.5 1.5" }, svg);
+        el("circle", { cx: x1, cy: y1, r: 2.6, fill: t.paper, stroke: PC[p], "stroke-width": 1.3 }, svg);
+        const lab = el("text", { x: x1 + 6, y: y1 + 3, "font-size": 10.5, "font-weight": "bold", fill: PC[p] }, svg);
+        lab.textContent = `${p.split(" /")[0]} ${cl} called`;
       });
+      const uncalled = el("text", { x: x1 + 6, y: 36, "font-size": 9.5, fill: t.mute }, svg);
+      uncalled.textContent = `${D.votehub.uncalled[ch]} not yet called`;
       const hl = el("line", { y1: m.t, y2: h - m.b, stroke: t.mute, "stroke-width": .6, "stroke-dasharray": "2 2", visibility: "hidden" }, svg);
       const dot = el("circle", { r: 4, fill: "none", "stroke-width": 1.5, visibility: "hidden" }, svg);
       const ov = el("rect", { x: m.l, y: m.t, width: w - m.l - m.r, height: h - m.t - m.b, fill: "transparent" }, svg);
@@ -134,8 +133,8 @@
       ov.addEventListener("click", ev => { const k = pick(ev); pinned = pinned ? null : k; if (k) show(k); });
     });
     const lg = document.getElementById("legend");
-    lg.innerHTML = "Ribbon color, mean economic score: " + [-.7, -.35, 0, .35, .7].map(v => `<span class="swatch" style="background:${div(v)}"></span>`).join("") + ' <span class="note">liberal −0.7 … +0.7 conservative · ribbon width is the spread · dashed or hollow = VoteHub estimate, dotted or solid = called</span>';
-    document.getElementById("src").textContent = "Sources: seat counts from Wikipedia, Party divisions of United States Congresses, at the start of each Congress. Ideology from Voteview DW-NOMINATE (Lewis, Poole, Rosenthal et al., HSall_members.csv), every member who served. 2027: " + D.votehub.note + " Calls as of " + D.votehub.asof_calls + "; estimates as of " + D.votehub.asof_est + ".";
+    lg.innerHTML = "Ribbon color, mean economic score: " + [-.7, -.35, 0, .35, .7].map(v => `<span class="swatch" style="background:${div(v)}"></span>`).join("") + ' <span class="note">liberal −0.7 … +0.7 conservative · ribbon width is the spread · dotted line and open circle = seats called so far for 2027; seats not yet called are not drawn</span>';
+    document.getElementById("src").textContent = "Sources: seat counts from Wikipedia, Party divisions of United States Congresses, at the start of each Congress. Ideology from Voteview DW-NOMINATE (Lewis, Poole, Rosenthal et al., HSall_members.csv), every member who served. 2027: " + D.votehub.note;
   }
   function f(v) { return (v >= 0 ? "+" : "") + v.toFixed(2); }
   function show(k) {
@@ -165,7 +164,8 @@
  ${c == 119 ? "<h3>2026 election → 120th Congress</h3><p class=\"tight\">" + D.votehub.note + "</p>" : ""}
  <h3>About the spectrum</h3><p class="note">DW-NOMINATE places every member of every Congress in one common space using their roll-call votes. <b>Dimension 1</b> (x) is the liberal (−1) to conservative (+1) axis, mostly about the government's role in the economy. <b>Dimension 2</b> (y) captures cross-cutting splits; historically it reflects slavery, then civil rights and North vs. South, and lately it is weak. Because the scale is shared, a party drifting across the plane is a real shift relative to other eras, although it is estimated from votes, not stated beliefs.</p>`;
     scatter(c, ch, p);
-    document.getElementById("scrub").value = c;
+    const scrub = document.getElementById("scrub");
+    if (document.activeElement !== scrub) scrub.value = c;
     document.getElementById("scrubl").textContent = `${ord(c)} (${yr(c)})`;
   }
   function scatter(c, ch, p) {

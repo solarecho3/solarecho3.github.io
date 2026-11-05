@@ -921,8 +921,11 @@ html[data-theme="dark"] .theme button[data-theme-set="dark"] {
 
 .ideo-slot #scrub,
 .seats #scrub {
-  flex: 1;
-  min-width: 8rem;
+  flex: 1 0 100%;
+  order: -1;
+  width: 100%;
+  min-width: 0;
+  touch-action: none;
   accent-color: var(--ink);
 }
 

@@ -525,9 +525,12 @@
       h += `<path d="${d}" fill="none" stroke="${col}" stroke-width="1"/>`;
     });
     const vh = D.votehub.House;
-    Object.entries(vh).forEach(([p, [cl, es]]) => { if (SEAT[p]?.[119]) h += `<line x1="${x(119)}" y1="${y(SEAT[p][119])}" x2="${x(120)}" y2="${y(es)}" stroke="${PC[p]}" stroke-dasharray="3 2"/><circle cx="${x(120)}" cy="${y(es)}" r="2.2" fill="${t.paperCss}" stroke="${PC[p]}"/>`; });
+    Object.entries(vh).forEach(([p, pair]) => {
+      if (!Array.isArray(pair) || !SEAT[p]?.[119]) return;
+      h += `<line x1="${x(119)}" y1="${y(SEAT[p][119])}" x2="${x(120)}" y2="${y(pair[0])}" stroke="${PC[p]}" stroke-dasharray="1.5 1.5"/><circle cx="${x(120)}" cy="${y(pair[0])}" r="2.2" fill="${t.paperCss}" stroke="${PC[p]}"/>`;
+    });
     if (evG.visible) D.ext.evidence.forEach(e => h += `<rect x="${x((e.year - 1789) / 2 + 1) - 2}" y="${H - 6}" width="4" height="4" transform="rotate(45 ${x((e.year - 1789) / 2 + 1)} ${H - 4})" fill="${evCss(e.kind)}"/>`);
-    h += `<line x1="${x(cur)}" x2="${x(cur)}" y1="0" y2="${H}" stroke="${t.inkCss}" stroke-width=".8"/><text x="4" y="10" font-size="9" fill="${t.muteCss}">House seats by party (dashed = VoteHub 2027 est.) · diamonds = evidence layer</text>`;
+    h += `<line x1="${x(cur)}" x2="${x(cur)}" y1="0" y2="${H}" stroke="${t.inkCss}" stroke-width=".8"/><text x="4" y="10" font-size="9" fill="${t.muteCss}">open circle = called so far · ${D.votehub.uncalled.House} House seats uncalled</text>`;
     sv.innerHTML = h;
   }
   function spark() {
@@ -548,10 +551,10 @@
     const appeared = rank.filter(r => r[1] >= .35 && r[2] < .35).map(r => r[0].name), faded = rank.filter(r => r[1] < .35 && r[2] >= .35).map(r => r[0].name);
     const ps = PARTIES.filter(p => present(cur, p) && show[p]);
     const seatTxt = ch => D.seats.filter(r => r.chamber == ch && r.congress == Math.min(cur, 119) && r.count > 0).map(r => `<span style="color:${PC[r.party] || theme().muteCss}">${r.party.split(" /")[0]} ${r.count}</span>`).join(" · ");
-    const vh = cur == 120 ? `est. D ${D.votehub.House.Democratic[1]} / R ${D.votehub.House.Republican[1]} (called ${D.votehub.House.Democratic[0]}/${D.votehub.House.Republican[0]})` : "";
+    const calledTxt = ch => Object.entries(D.votehub[ch]).filter(([, v]) => Array.isArray(v)).map(([p, [n]]) => `${p.split(" /")[0]} ${n} called`).join(" · ") + ` · ${D.votehub.uncalled[ch]} not yet called`;
     const ab = p => p.replace("Democratic-Republican", "DR").replace("Democratic", "D").replace("Republican", "R").replace("Federalist", "F").replace("Whig", "W");
     let t = `<h2>${ord(cur)} Congress · ${Y}–${Y + 2}</h2><div><b>President:</b> ${m.pres || ""}${m.speaker?.length ? " · <b>Speaker:</b> " + m.speaker.join("; ") : ""}</div>
- <div><b>House:</b> ${cur == 120 ? vh : seatTxt("House")}<br><b>Senate:</b> ${cur == 120 ? `est. D ${D.votehub.Senate.Democratic[1]} / R ${D.votehub.Senate.Republican[1]}` : seatTxt("Senate")}</div>
+ <div><b>House:</b> ${cur == 120 ? calledTxt("House") : seatTxt("House")}<br><b>Senate:</b> ${cur == 120 ? calledTxt("Senate") : seatTxt("Senate")}</div>
  ${appeared.length || faded.length ? `<div class="flags">${appeared.map(a => `<span class="tag up">▲ ${a}</span>`).join("")}${faded.map(a => `<span class="tag down">▼ ${a}</span>`).join("")}</div>` : ""}
  <h3>Live dimensions · positions (−2…+2)</h3><table><tr><th>Dimension</th><th>salience</th>${ps.map(p => `<th style="color:${PC[p]}">${ab(p)}</th>`).join("")}</tr>`;
     rank.filter(r => r[1] >= .12).forEach(([d, s]) => { t += `<tr title="−2: ${esc(d.neg)}\n+2: ${esc(d.pos)}"><td>${d.name}</td><td><span class="bar" style="width:${s * 40}px"></span></td>${ps.map(p => { const q = POS[cur][p][d.id]; return `<td style="color:${PC[p]}">${q ? (q.v > 0 ? "+" : "") + q.v.toFixed(1) + (q.lo != null ? `<sup title="contested ${q.lo}…${q.hi}">↔</sup>` : "") + (q.rev ? '<sup title="revised by later archives">†</sup>' : "") : "·"}</td>`; }).join("")}</tr>`; });
@@ -575,11 +578,12 @@
     }
     P.innerHTML = t;
     P.scrollTop = kept;
-    document.getElementById("cl").textContent = `${ord(cur)} Congress (${Y})${cur == 120 ? " · VoteHub projection" : ""}`;
+    document.getElementById("cl").textContent = `${ord(cur)} Congress (${Y})${cur == 120 ? " · calls so far" : ""}`;
   }
   function setC(c, reset) {
     cur = c;
-    document.getElementById("scrub").value = c;
+    const scrub = document.getElementById("scrub");
+    if (document.activeElement !== scrub) scrub.value = c;
     drawSlice();
     frameTarget(reset);
     side();
@@ -636,7 +640,7 @@
 <p><b>Immigration series.</b> ${esc(X.lpr_src)} ${esc(X.fb_src)}</p>
 <p><b>Contested ranges and source era.</b> Where credible scholars disagree, a low and a high reading are stored, each with its citation. Each rating is tagged <i>contemporary</i> (sources from the time), <i>later</i> (later scholarship) or <i>both</i>. Readings changed by later archive openings (e.g., Venona in 1995, Soviet archives in the 1990s) are flagged †. The evidence layer lists documented threats <i>and</i> documented overreach, with sources, under the same standard for every party.</p>
 <p><b>Calibration vs V-Party (1970–2018)</b>:</p><ul>${cal}</ul><p>Manifesto Project: not downloaded (registration required). Pooled correlations are inflated by the gap between the parties; within-party trends are the real test.</p>
-<p><b>Caveats.</b> Before 1840 the coding rests on votes and the record only. There is no numeric external check before 1970 (press counts exist for 1870–1920 only). Third parties are omitted. WHO combines counting and districting in one axis. The 120th Congress carries the 119th forward (VoteHub, Nov 4, 2026).</p>`;
+<p><b>Caveats.</b> Before 1840 the coding rests on votes and the record only. There is no numeric external check before 1970 (press counts exist for 1870–1920 only). Third parties are omitted. WHO combines counting and districting in one axis. The 120th Congress carries the 119th forward (Associated Press calls as of 5 November 2026; seats not yet called are left out).</p>`;
   document.getElementById("mclose").onclick = () => { MT.style.display = "none"; };
   document.getElementById("mbtn").onclick = () => MT.style.display = MT.style.display == "block" ? "none" : "block";
   addEventListener("resize", resize);
