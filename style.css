@@ -780,6 +780,7 @@ html[data-theme="dark"] .theme button[data-theme-set="dark"] {
 
 .ideo-slot:not(.is-placeholder) {
   margin-top: 1.15rem;
+  margin-bottom: 1.4rem;
   height: calc(100vh - 6.5rem);
   height: calc(100dvh - 6.5rem);
   min-height: 34rem;
@@ -995,13 +996,20 @@ html[data-theme="dark"] .theme button[data-theme-set="dark"] {
 }
 
 .ideo-slot #tip {
-  position: absolute;
-  z-index: 7;
+  position: fixed;
+  z-index: 20;
   display: none;
-  max-width: min(24rem, calc(100% - 1rem));
+  max-width: min(24rem, calc(100vw - 1rem));
+  max-height: 70vh;
+  overflow: auto;
   padding: 0.4rem 0.55rem;
   font-size: 0.78rem;
   pointer-events: none;
+}
+
+.ideo-slot #side td[data-i],
+.ideo-slot #radar text[data-i] {
+  cursor: help;
 }
 
 .ideo-slot #tip .src {

@@ -10,10 +10,10 @@
     '<div id="top"><div class="sub">Inner ring −2, grey ring 0, rim +2. A dashed line is a contested range. A faint spoke has low salience. The floor band is press alignment. Diamonds are documented facts. <a href="seats.html">Seat counts</a></div>' +
     '<div id="ptog"></div>' +
     '<div id="legend"><span class="k threat"></span>documented threat <span class="k over"></span>documented overreach <span class="k ctx"></span>context or contested<br>—— uncertainty &nbsp; ┄┄ contested range (low to high) &nbsp; ░ internal spread</div></div>' +
-    '<div id="stage"><canvas id="c3"></canvas><svg id="radar"></svg><div id="labels"></div><div id="tip"></div></div>' +
+    '<div id="stage"><canvas id="c3"></canvas><svg id="radar"></svg><div id="labels"></div></div>' +
     '<div id="ctl"><div id="row"><button type="button" id="play">▶ Play</button><input id="scrub" type="range" min="1" max="120" value="89"><span id="cl"></span>' +
     '<button type="button" id="evb" class="on">Evidence layer</button><button type="button" id="medb" class="on">Press band</button><button type="button" id="mode">Flat 2D radar</button><button type="button" id="reset">Reset view</button><button type="button" id="mbtn">Method</button></div><svg id="strip"></svg></div>' +
-    '<div id="method"></div></div><div id="side"></div></div>';
+    '<div id="method"></div></div><div id="side"></div><div id="tip"></div></div>';
 
   function theme() {
     var dark = document.documentElement.getAttribute("data-theme") === "dark";
@@ -258,20 +258,39 @@
   }
   const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), tip = document.getElementById("tip");
   function esc(s) { return (s || "").replace(/</g, "&lt;"); }
-  function vtip(p, i, q, x, y) {
-    const d = D.dims[i];
-    let h = `<b style="color:${PC[p]}">${p}</b> · ${ord(cur)} Congress (${yr(cur)})<br><b>${d.name}</b>: ${q.v >= 0 ? "+" : ""}${q.v.toFixed(2)} ± ${q.u} <span class="note">(internal spread ±${q.s})</span><br><span class="note">Source era: ${q.era == "contemporary" ? "sources from the time" : q.era == "later" ? "later scholarship" : "both (contemporary and later)"}</span><br><span class="src">${esc(q.src)}</span>`;
+  function eraText(era) {
+    if (era == "contemporary") return "sources from the time";
+    if (era == "later") return "later scholarship";
+    return "both (contemporary and later)";
+  }
+  function partyCite(p, q) {
+    let h = `<b style="color:${PC[p]}">${p}</b> ${q.v >= 0 ? "+" : ""}${q.v.toFixed(2)} ± ${q.u} <span class="note">(internal spread ±${q.s})</span><br><span class="note">Source era: ${eraText(q.era)}</span><br><span class="src">${esc(q.src)}</span>`;
     if (q.lo != null) h += `<div class="split"><b>Contested:</b> low ${q.lo.toFixed(2)} ↔ high ${q.hi.toFixed(2)}<br>Low reading: <span class="src">${esc(q.clo) || "—"}</span><br>High reading: <span class="src">${esc(q.chi) || "—"}</span></div>`;
     if (q.rev) h += `<div class="revise"><b>Revised by later archives:</b> ${esc(q.rev)}</div>`;
-    h += `<span class="note">Coded judgment on fixed poles: −2 ${esc(d.neg)} · +2 ${esc(d.pos)}</span>`;
-    showTip(h, x, y);
+    return h;
+  }
+  function dimCite(i) {
+    return PARTIES.filter(p => present(cur, p) && show[p] && POS[cur][p][D.dims[i].id]).map(p => `<div class="split">${partyCite(p, POS[cur][p][D.dims[i].id])}</div>`).join("");
+  }
+  function dimTip(i) {
+    const d = D.dims[i];
+    return `<b>${esc(d.name)}</b><br><span class="note">−2 ${esc(d.neg)} · +2 ${esc(d.pos)}</span>${dimCite(i)}`;
+  }
+  function vtip(p, i, q, x, y) {
+    const d = D.dims[i];
+    showTip(`<b style="color:${PC[p]}">${p}</b> · ${ord(cur)} Congress (${yr(cur)})<br><b>${esc(d.name)}</b><br>${partyCite(p, q)}<br><span class="note">Coded judgment on fixed poles: −2 ${esc(d.neg)} · +2 ${esc(d.pos)}</span>`, x, y);
   }
   function showTip(h, x, y) {
     tip.innerHTML = h;
     tip.style.display = "block";
-    const m = document.getElementById("stage");
-    tip.style.left = Math.max(4, Math.min(x + 14, m.clientWidth - tip.offsetWidth - 8)) + "px";
-    tip.style.top = Math.max(4, Math.min(y + 10, m.clientHeight - tip.offsetHeight - 8)) + "px";
+    const w = tip.offsetWidth, ht = tip.offsetHeight;
+    let left = x + 14, top = y + 12;
+    if (left + w > window.innerWidth - 8) left = x - w - 12;
+    if (left < 8) left = 8;
+    if (top + ht > window.innerHeight - 8) top = y - ht - 12;
+    if (top < 8) top = 8;
+    tip.style.left = left + "px";
+    tip.style.top = top + "px";
   }
   function etip(e, x, y) {
     showTip(`<b>${e.year} · ${esc(e.title)}</b> <span class="tag" style="${evTag(e.kind)}">${e.kind}</span><br>${esc(e.text)}<br><span class="note">Source: ${esc(e.source)}</span><br><span class="note">A documented fact, not a party rating.</span>`, x, y);
@@ -282,8 +301,8 @@
     ray.setFromCamera(mouse, cam);
     const h = ray.intersectObjects(pick.concat(evG.visible ? evPick : []))[0];
     if (!h) { tip.style.display = "none"; return; }
-    if (h.object.userData.ev) etip(h.object.userData.ev, e.clientX - b.left, e.clientY - b.top);
-    else { const { p, i, q } = h.object.userData; vtip(p, i, q, e.clientX - b.left, e.clientY - b.top); }
+    if (h.object.userData.ev) etip(h.object.userData.ev, e.clientX, e.clientY);
+    else { const { p, i, q } = h.object.userData; vtip(p, i, q, e.clientX, e.clientY); }
   });
   const lab = document.getElementById("labels");
   const labs = D.dims.map((d, i) => {
@@ -291,7 +310,7 @@
     e.className = "sl";
     e.textContent = d.name;
     lab.appendChild(e);
-    e.onmouseenter = () => showTip(`<b>${d.name}</b><br>−2: ${esc(d.neg)}<br>+2: ${esc(d.pos)}<br><span class="note">Issues mapped (${d.issues.length}): ${esc(d.issues.slice(0, 14).join("; "))}${d.issues.length > 14 ? " …" : ""}<br>Active span (salience ≥ .35): ${d.first || "—"}–${d.last || "—"} · salience now ${sal(cur, i).toFixed(2)}</span>`, parseFloat(e.style.left) + 10, parseFloat(e.style.top) + 14);
+    e.onmousemove = ev => showTip(`<b>${esc(d.name)}</b><br>−2: ${esc(d.neg)}<br>+2: ${esc(d.pos)}<br><span class="note">Issues mapped (${d.issues.length}): ${esc(d.issues.slice(0, 14).join("; "))}${d.issues.length > 14 ? " …" : ""}<br>Active span (salience ≥ .35): ${d.first || "—"}–${d.last || "—"} · salience now ${sal(cur, i).toFixed(2)}</span>${dimCite(i)}`, ev.clientX, ev.clientY);
     e.onmouseleave = () => tip.style.display = "none";
     return e;
   });
@@ -369,13 +388,31 @@
     sv.setAttribute("width", W);
     sv.setAttribute("height", H);
     const narrow = W < 640;
-    const fontSize = narrow ? 9.5 : 11;
-    const wantRoom = narrow ? 92 : 168;
-    let S = Math.min(W, H - (narrow ? 24 : 120)) * (narrow ? 0.3 : 0.33);
-    if (W / 2 - (S + 16) < wantRoom) S = Math.max(narrow ? 48 : 78, W / 2 - 16 - wantRoom);
+    const nDim = D.dims.length;
+    const listCols = 2;
+    const listRows = Math.ceil(nDim / listCols);
+    const listSize = 10;
+    const listLine = 12;
+    const listRow = listLine * 2 + 4;
+    const listH = narrow ? listRows * listRow + 12 : 0;
+    const plotH = Math.max(80, H - listH);
+    const fontSize = 11;
+    let S, cx, cy;
+    if (narrow) {
+      const numPad = 16;
+      S = Math.min(W / 2 - 8 - numPad, Math.max(24, plotH / 2 - numPad - 6));
+      cx = W / 2;
+      cy = plotH / 2 - 2;
+    } else {
+      const wantRoom = 168;
+      S = Math.min(W, H - 120) * 0.33;
+      if (W / 2 - (S + 16) < wantRoom) S = Math.max(78, W / 2 - 16 - wantRoom);
+      cx = W / 2;
+      cy = H / 2 - 20;
+    }
     const room = Math.max(64, W / 2 - (S + 16));
     const maxChars = Math.max(12, Math.floor((room - 6) / (fontSize * 0.66)));
-    const cx = W / 2, cy = H / 2 - (narrow ? 4 : 20), r = v => (R0 + (v + 2) / 4 * RL) / (R0 + RL) * S, rr = R => R / (R0 + RL) * S;
+    const r = v => (R0 + (v + 2) / 4 * RL) / (R0 + RL) * S, rr = R => R / (R0 + RL) * S;
     function wrapLines(name) {
       const words = name.split(" ");
       const lines = [];
@@ -389,12 +426,15 @@
       return lines;
     }
     let h = "";
-    [-2, -1, 0, 1, 2].forEach(v => h += `<circle cx="${cx}" cy="${cy}" r="${r(v)}" fill="none" stroke="${v == 0 ? t.ringCss : t.hairCss}" stroke-width="${v == 0 ? .8 : .6}"/><text x="${cx + 3}" y="${cy - r(v) - 2}" font-size="9" fill="${t.muteCss}">${v > 0 ? "+" : ""}${v}</text>`);
+    [-2, -1, 0, 1, 2].forEach(v => {
+      h += `<circle cx="${cx}" cy="${cy}" r="${r(v)}" fill="none" stroke="${v == 0 ? t.ringCss : t.hairCss}" stroke-width="${v == 0 ? .8 : .6}"/>`;
+      if (!narrow) h += `<text x="${cx + 3}" y="${cy - r(v) - 2}" font-size="9" fill="${t.muteCss}">${v > 0 ? "+" : ""}${v}</text>`;
+    });
     const LB = [];
     D.dims.forEach((d, i) => {
       const a = ang(i), s = sal(cur, i);
       h += `<line x1="${cx + r(-2) * Math.cos(a)}" y1="${cy - r(-2) * Math.sin(a)}" x2="${cx + r(2) * Math.cos(a)}" y2="${cy - r(2) * Math.sin(a)}" stroke="${t.inkCss}" stroke-opacity="${.07 + .8 * s}" stroke-width=".8"/>`;
-      LB.push({ x: cx + (S + 12) * Math.cos(a), y: cy - (S + 12) * Math.sin(a) + 4, anc: Math.cos(a) > .2 ? "start" : Math.cos(a) < -.2 ? "end" : "middle", d, s });
+      LB.push({ x: cx + (S + 12) * Math.cos(a), y: cy - (S + 12) * Math.sin(a) + 4, anc: Math.cos(a) > .2 ? "start" : Math.cos(a) < -.2 ? "end" : "middle", d, s, i });
     });
     PARTIES.forEach(p => {
       if (!show[p] || !present(cur, p)) return;
@@ -413,12 +453,46 @@
       const step = fontSize + 1.5;
       const y0 = o.y - ((lines.length - 1) * step) / 2;
       const spans = lines.map((ln, i) => `<tspan x="${o.x.toFixed(1)}" y="${(y0 + i * step).toFixed(1)}">${esc(ln)}</tspan>`).join("");
-      h += `<text data-dim="1" text-anchor="${o.anc}" font-size="${fontSize}" fill="${t.inkCss}" fill-opacity="${(.3 + .7 * o.s).toFixed(2)}"><title>${o.d.name}\n−2: ${o.d.neg}\n+2: ${o.d.pos}</title>${spans}</text>`;
+      h += `<text data-dim="1" data-i="${o.i}" text-anchor="${o.anc}" font-size="${fontSize}" fill="${t.inkCss}" fill-opacity="${(.3 + .7 * o.s).toFixed(2)}">${spans}</text>`;
     });
+    if (narrow) {
+      const colW = (W - 12) / listCols;
+      const keyLimit = Math.max(14, Math.floor((colW - 20) / (listSize * 0.56)));
+      function keyLines(name) {
+        const words = name.split(" ");
+        const lines = [];
+        let line = "";
+        words.forEach(word => {
+          const next = line ? line + " " + word : word;
+          if (line && next.length > keyLimit) { lines.push(line); line = word; }
+          else line = next;
+        });
+        if (line) lines.push(line);
+        if (lines.length > 2) {
+          const rest = lines.slice(1).join(" ");
+          return [lines[0], rest.length > keyLimit ? rest.slice(0, Math.max(1, keyLimit - 1)) + "…" : rest];
+        }
+        return lines;
+      }
+      h += `<line x1="6" x2="${W - 6}" y1="${(H - listH).toFixed(1)}" y2="${(H - listH).toFixed(1)}" stroke="${t.hairCss}"/>`;
+      D.dims.forEach((d, i) => {
+        const a = ang(i);
+        const nx = cx + (S + 12) * Math.cos(a);
+        const ny = cy - (S + 12) * Math.sin(a);
+        h += `<circle cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="8" fill="${t.paperCss}" stroke="${t.hairCss}" stroke-width=".7"/><text x="${nx.toFixed(1)}" y="${(ny + 3.1).toFixed(1)}" text-anchor="middle" font-size="9" fill="${t.inkCss}">${i + 1}</text>`;
+        const col = i < listRows ? 0 : 1;
+        const row = i < listRows ? i : i - listRows;
+        const x = 6 + col * colW;
+        const y = H - listH + 16 + row * listRow;
+        const lines = keyLines(d.name);
+        const spans = lines.map((ln, k) => `<tspan x="${(x + 16).toFixed(1)}" y="${(y + k * listLine).toFixed(1)}">${esc(ln)}</tspan>`).join("");
+        h += `<text data-key="1" data-i="${i}" font-size="${listSize}" fill="${t.inkCss}"><tspan x="${x.toFixed(1)}" y="${y.toFixed(1)}" fill="${t.muteCss}">${i + 1}</tspan>${spans}</text>`;
+      });
+    }
     const ctlEl = document.getElementById("ctl");
     const bottomInset = ctlEl && getComputedStyle(ctlEl).position === "absolute" ? ctlEl.offsetHeight + 10 : 12;
-    const partiesShown = medG.visible ? PARTIES.filter(p => D.ext.media[cur]?.[p] && show[p]) : [];
-    const evAll = evG.visible ? D.ext.evidence.filter(e => Math.abs(e.year - yr(cur)) <= 8) : [];
+    const partiesShown = !narrow && medG.visible ? PARTIES.filter(p => D.ext.media[cur]?.[p] && show[p]) : [];
+    const evAll = !narrow && evG.visible ? D.ext.evidence.filter(e => Math.abs(e.year - yr(cur)) <= 8) : [];
     const floorY = cy + S + 46;
     const roomY = H - bottomInset - Math.max(floorY, 20);
     const partyH = partiesShown.length * 14;
@@ -429,7 +503,7 @@
     const more = evAll.length - evShow.length;
     const blockH = 16 + partyH + (evShow.length || more ? 26 : 0) + evShow.length * 15 + (more ? 15 : 0);
     let gx = 16, gy = Math.max(16, H - bottomInset - blockH);
-    if (medG.visible) {
+    if (partiesShown.length) {
       h += `<text x="${gx}" y="${gy - 8}" font-size="10" fill="${t.muteCss}">PRESS ALIGNMENT (−2 hostile … +2 friendly)</text>`;
       partiesShown.forEach(p => {
         const pm = D.ext.media[cur][p];
@@ -502,11 +576,15 @@
       if (!moved) break;
     }
     sv.querySelectorAll("circle[data-p]").forEach(e => {
-      e.onmousemove = ev => { const p = e.dataset.p, i = +e.dataset.i; vtip(p, i, POS[cur][p][D.dims[i].id], ev.offsetX, ev.offsetY); };
+      e.onmousemove = ev => { const p = e.dataset.p, i = +e.dataset.i; vtip(p, i, POS[cur][p][D.dims[i].id], ev.clientX, ev.clientY); };
       e.onmouseleave = () => tip.style.display = "none";
     });
+    sv.querySelectorAll("text[data-i]").forEach(node => {
+      node.onmousemove = ev => showTip(dimTip(+node.dataset.i), ev.clientX, ev.clientY);
+      node.onmouseleave = () => tip.style.display = "none";
+    });
     sv.querySelectorAll("g[data-ev]").forEach(g => {
-      g.onmousemove = ev => etip(D.ext.evidence[+g.dataset.ev], ev.offsetX - 380, ev.offsetY);
+      g.onmousemove = ev => etip(D.ext.evidence[+g.dataset.ev], ev.clientX, ev.clientY);
       g.onmouseleave = () => tip.style.display = "none";
     });
   }
@@ -557,8 +635,14 @@
  <div><b>House:</b> ${cur == 120 ? calledTxt("House") : seatTxt("House")}<br><b>Senate:</b> ${cur == 120 ? calledTxt("Senate") : seatTxt("Senate")}</div>
  ${appeared.length || faded.length ? `<div class="flags">${appeared.map(a => `<span class="tag up">▲ ${a}</span>`).join("")}${faded.map(a => `<span class="tag down">▼ ${a}</span>`).join("")}</div>` : ""}
  <h3>Live dimensions · positions (−2…+2)</h3><table><tr><th>Dimension</th><th>salience</th>${ps.map(p => `<th style="color:${PC[p]}">${ab(p)}</th>`).join("")}</tr>`;
-    rank.filter(r => r[1] >= .12).forEach(([d, s]) => { t += `<tr title="−2: ${esc(d.neg)}\n+2: ${esc(d.pos)}"><td>${d.name}</td><td><span class="bar" style="width:${s * 40}px"></span></td>${ps.map(p => { const q = POS[cur][p][d.id]; return `<td style="color:${PC[p]}">${q ? (q.v > 0 ? "+" : "") + q.v.toFixed(1) + (q.lo != null ? `<sup title="contested ${q.lo}…${q.hi}">↔</sup>` : "") + (q.rev ? '<sup title="revised by later archives">†</sup>' : "") : "·"}</td>`; }).join("")}</tr>`; });
-    t += `</table><div class="note">Hover a vertex for its citation and source era. ↔ marks a contested range; † marks a reading revised by later archive openings.</div>`;
+    rank.filter(r => r[1] >= .12).forEach(([d, s]) => {
+      const i = D.dims.indexOf(d);
+      t += `<tr><td data-i="${i}">${esc(d.name)}</td><td><span class="bar" style="width:${s * 40}px"></span></td>${ps.map(p => {
+        const q = POS[cur][p][d.id];
+        return q ? `<td data-i="${i}" data-p="${p}" style="color:${PC[p]}">${(q.v > 0 ? "+" : "") + q.v.toFixed(1) + (q.lo != null ? "<sup>↔</sup>" : "") + (q.rev ? "<sup>†</sup>" : "")}</td>` : `<td style="color:${PC[p]}">·</td>`;
+      }).join("")}</tr>`;
+    });
+    t += `</table><div class="note">Hover a dimension name, a score, or a vertex for its citation and source era. ↔ marks a contested range; † marks a reading revised by later archive openings.</div>`;
     const md = D.ext.media[cur];
     if (md) {
       t += `<h3>Press alignment (overlay band)</h3>`;
@@ -577,6 +661,15 @@
       if (ev.length) t += `<h3>Evidence layer: documented facts (±8 yrs)</h3>` + ev.map(e => `<div class="ev ${e.kind}"><b>${e.year} · ${esc(e.title)}</b> <span class="note">[${e.kind}]</span><br>${esc(e.text)}<br><span class="note">${esc(e.source)}</span></div>`).join("");
     }
     P.innerHTML = t;
+    P.querySelectorAll("td[data-i]").forEach(el => {
+      el.onmousemove = ev => {
+        const i = +el.dataset.i;
+        if (!el.dataset.p) { showTip(dimTip(i), ev.clientX, ev.clientY); return; }
+        const q = POS[cur][el.dataset.p][D.dims[i].id];
+        if (q) vtip(el.dataset.p, i, q, ev.clientX, ev.clientY);
+      };
+      el.onmouseleave = () => { tip.style.display = "none"; };
+    });
     P.scrollTop = kept;
     document.getElementById("cl").textContent = `${ord(cur)} Congress (${Y})${cur == 120 ? " · calls so far" : ""}`;
   }
@@ -638,7 +731,7 @@
 <p><b>Surfaces.</b> Live dimensions sit at the party's position. Non-live dimensions ease toward 0 (the grey ring), not toward −2. Radii are Gaussian-smoothed over ±3 Congresses and Catmull-Rom interpolated, so tubes morph without spikes. The bold slice and its markers always show the unsmoothed rating, shifted onto the smoothed surface.</p>
 <p><b>Press alignment</b>, from −2 (press aligned against the party) to +2 (friendly press dominant):<br>• 1870–1920: 4 × (party share − rival share) of big-city dailies by stated affiliation. ${esc(X.ggg_src)}<br>• 1972–2026: (party trust − rival trust) ÷ 25 percentage points. ${esc(X.gallup_src)}<br>• 1924–1971: no counts obtained, so the band is interpolated. Before 1870 it is coded. The Gentzkow–Shapiro–Sinkinson panel (ICPSR 30261) needs an ICPSR member login and was not used.</p>
 <p><b>Immigration series.</b> ${esc(X.lpr_src)} ${esc(X.fb_src)}</p>
-<p><b>Contested ranges and source era.</b> Where credible scholars disagree, a low and a high reading are stored, each with its citation. Each rating is tagged <i>contemporary</i> (sources from the time), <i>later</i> (later scholarship) or <i>both</i>. Readings changed by later archive openings (e.g., Venona in 1995, Soviet archives in the 1990s) are flagged †. The evidence layer lists documented threats <i>and</i> documented overreach, with sources, under the same standard for every party.</p>
+<p><b>Contested ranges and source era.</b> Where credible scholars disagree, a low and a high reading are stored, each with its citation. Each rating is tagged <i>contemporary</i> (sources from the time), <i>later</i> (later scholarship) or <i>both</i>. Readings changed by later archive openings (e.g., Venona in 1995, Soviet archives in the 1990s) are flagged †. The evidence layer lists documented threats <i>and</i> documented overreach, with sources, under the same standard for every party. The threats in that layer include espionage and foreign influence, the Barbary conflicts, and attacks on Americans by Islamist groups and states.</p>
 <p><b>Calibration vs V-Party (1970–2018)</b>:</p><ul>${cal}</ul><p>Manifesto Project: not downloaded (registration required). Pooled correlations are inflated by the gap between the parties; within-party trends are the real test.</p>
 <p><b>Caveats.</b> Before 1840 the coding rests on votes and the record only. There is no numeric external check before 1970 (press counts exist for 1870–1920 only). Third parties are omitted. WHO combines counting and districting in one axis. The 120th Congress carries the 119th forward (Associated Press calls as of 5 November 2026; seats not yet called are left out).</p>`;
   document.getElementById("mclose").onclick = () => { MT.style.display = "none"; };
