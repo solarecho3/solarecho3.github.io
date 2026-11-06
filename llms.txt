@@ -1,6 +1,8 @@
 # Adam Smith
 
-> CTO and co-founder of Larx. Former US Army Special Forces (Green Beret) and Applied AI Engineer at USSOCOM. Builds decision intelligence systems that fuse visual and multi-domain data for the agentic age.
+> CTO and co-founder of Larx. Former US Army Special Forces (Green Beret) and Applied AI Engineer at USSOCOM. Builds decision intelligence systems that fuse visual and multi-domain data for the agentic age. The public journal is on this site.
+
+The full prose of each journal entry is in that page’s HTML, in the textarea with id `essay-source`. The Ideologies chart and the seat-count chart are drawn in the browser. The written explanation of the Ideologies chart is the prose in `essay-source`.
 
 ## Key facts
 - Current role: Chief Technology Officer, Larx (https://larx.io) — intelligence / decision intelligence platform
@@ -8,10 +10,34 @@
 - Military: US Army Special Forces (Green Beret), 2007–2023; Ranger, Jumpmaster, Combat Diver; combat valor awards
 - Focus areas: agentic systems, visual AI, multi-source intelligence fusion, operational decision support
 - Site: https://solarecho3.github.io/
+- Agent sheet: https://solarecho3.github.io/llms.txt
+- Page list: https://solarecho3.github.io/sitemap.xml
 - X: https://x.com/solarecho3
 - Instagram: https://www.instagram.com/solarecho3
 - GitHub: https://github.com/solarecho3
 
 ## Pages
-- [Personal site](https://solarecho3.github.io/): Canonical bio, career timeline, and links
+- [Personal site](https://solarecho3.github.io/): Canonical bio, career timeline, journal list, and media
 - [Larx](https://larx.io): Company and product
+
+## Journal
+- [Ideologies](https://solarecho3.github.io/essays/ideologies.html): Where each party stood on the same policy questions, from 1789 to 2027. Eighteen fixed questions, party marks with citations, seat counts through the 5 November 2026 Associated Press calls, and documented events on the chart. Tags: ideology, politics, history. Published 2026-11-05. Chart updated 2026-11-06.
+- [Distributions](https://solarecho3.github.io/essays/distributions.html): Temperature, Zipf, and the standard distribution shapes. Tags: math, distributions. Published 2026-10-23.
+- [Neural nets](https://solarecho3.github.io/essays/neural-nets.html): A simple net, its gradient, and the loss surface. Tags: math, networks. Published 2026-10-23.
+- [Signals](https://solarecho3.github.io/essays/signals.html): Frequency modulated waves, chirps, and a sampled sine. Tags: math, signals. Published 2026-10-23.
+- [Geometry](https://solarecho3.github.io/essays/geometry.html): Through any point not on a line: one parallel, at least two, or none. Tags: math, geometry. Published 2026-10-23.
+- [Big O](https://solarecho3.github.io/essays/big-o.html): Constant, linear, quadratic, logarithmic, and exponential. Tags: math, complexity. Published 2026-10-23.
+- [Calculus](https://solarecho3.github.io/essays/calculus.html): A derivative measures how a function changes as its input changes. Tags: math, calculus. Published 2026-10-23.
+- [Matrix applications](https://solarecho3.github.io/essays/matrix-applications.html): Covariance is the dot product between two mean-centered variables. Tags: math, matrices. Published 2026-10-23.
+- [Matrices](https://solarecho3.github.io/essays/matrices.html): Bold letters, sized as rows by columns. Math counts from 1, Python from 0. Tags: math, matrices. Published 2026-10-23.
+- [Vectors](https://solarecho3.github.io/essays/vectors.html): Assume all vectors are columnar unless indicated. Tags: math, vectors. Published 2026-10-23.
+- [Computer Thinking](https://solarecho3.github.io/essays/computer-logic.html): NAND gates as logical basis, and perceptrons as NAND gates. Tags: code, logic, thinking, compute, perceptron, neuron, sigmoid. Published 2026-10-21.
+- [Larx](https://solarecho3.github.io/essays/larx.html): Co-founded, raised $2.5 million, and went live in March 2025. Tags: larx, company. Published 2025-03-01.
+
+## Seat counts
+- [Seats](https://solarecho3.github.io/essays/seats.html): Seats by party at the start of each Congress, from 1789 to 2027, for the House and the Senate. The 2027 points are Associated Press calls as of 5 November 2026. Linked from the Ideologies entry. Published 2026-11-05.
+
+## Media
+- [PASSION](https://www.youtube.com/watch?v=1HT96oJvKZ0): Ambition makes you look pretty ugly
+- [METAMORPHIC](https://www.youtube.com/watch?v=yBcYkSnjVLo): Diffusion Transformer
+- [STRUGGLE](https://www.youtube.com/watch?v=6uIRpblC0ws): Don't quit

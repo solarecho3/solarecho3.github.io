@@ -1,13 +1,49 @@
+# Every crawler may read the public pages.
+# A crawler is a program that fetches pages.
+# The short sheet for agents is https://solarecho3.github.io/llms.txt
+
 User-agent: *
 Allow: /
 
+# Search and answer indexes. These build the lists an assistant cites.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Training and grounding. Already covered by the rule above. Named here so the permission is explicit.
 User-agent: GPTBot
 Allow: /
 
 User-agent: ClaudeBot
 Allow: /
 
-User-agent: PerplexityBot
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Meta-ExternalAgent
 Allow: /
 
 Sitemap: https://solarecho3.github.io/sitemap.xml
