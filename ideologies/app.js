@@ -614,12 +614,13 @@
   function spark() {
     const t = theme();
     const L = D.ext.lpr_decade, F = D.ext.fb, W = 400, H = 70, ks = Object.keys(L).map(Number), mx = Math.max(...Object.values(L)), x = y => 6 + (y - 1820) / (2030 - 1820) * (W - 12);
-    let h = `<svg width="${W}" height="${H + 14}">`;
+    let h = `<div class="spark"><svg viewBox="0 0 ${W} ${H}" role="img">`;
     ks.forEach(k => { const v = L[k], bh = v / mx * (H - 8); h += `<rect x="${x(k) + 1}" y="${H - bh}" width="${(W - 12) / 21 - 2}" height="${bh}" fill="${t.barCss}"><title>${k}s: ${v.toLocaleString()} LPRs${k == 2020 ? " (FY2020–22 only)" : ""}</title></rect>`; });
     const fk = Object.keys(F).map(Number);
     h += `<path d="${fk.map((k, i) => (i ? "L" : "M") + (x(k) + 4) + "," + (H - F[k] / 16 * (H - 8))).join("")}" fill="none" stroke="${t.inkCss}" stroke-width="1.2"/>`;
     fk.forEach(k => h += `<circle cx="${x(k) + 4}" cy="${H - F[k] / 16 * (H - 8)}" r="1.8" fill="${t.inkCss}"><title>${k}: ${F[k]}% foreign-born</title></circle>`);
-    h += `<line x1="${x(yr(cur))}" x2="${x(yr(cur))}" y1="0" y2="${H}" stroke="${t.nowCss}" stroke-width="1"/><text x="6" y="${H + 11}" font-size="9" fill="${t.muteCss}">bars: new LPRs per decade (max ${(mx / 1e6).toFixed(1)} M, 2010s) · line: foreign-born % (peak 14.8%, 1890)</text></svg>`;
+    h += `<line x1="${x(yr(cur))}" x2="${x(yr(cur))}" y1="0" y2="${H}" stroke="${t.nowCss}" stroke-width="1"/></svg>`;
+    h += `<div class="note">bars: new LPRs per decade (max ${(mx / 1e6).toFixed(1)} M, 2010s) · line: foreign-born % (peak 14.8%, 1890)</div></div>`;
     return h;
   }
   function side() {
