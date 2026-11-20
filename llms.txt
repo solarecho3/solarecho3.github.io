@@ -38,6 +38,7 @@ The full prose of each journal entry is in that page’s HTML, in the textarea w
 - [Seats](https://solarecho3.github.io/essays/seats.html): Seats by party at the start of each Congress, from 1789 to 2027, for the House and the Senate. The 2027 points are Associated Press calls as of 5 November 2026. Linked from the Ideologies entry. Published 2026-11-05.
 
 ## Media
+- [UMBRA](https://x.com/solarecho3/status/2123900715730878839): Progressively processed synthetic aperture radar
 - [NANOGPT](https://x.com/solarecho3/status/2123882189720879446): QKV vectors on WebGPU
 - [PASSION](https://www.youtube.com/watch?v=1HT96oJvKZ0): Ambition makes you look pretty ugly
 - [METAMORPHIC](https://www.youtube.com/watch?v=yBcYkSnjVLo): Diffusion Transformer
