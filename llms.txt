@@ -38,6 +38,7 @@ The full prose of each journal entry is in that page’s HTML, in the textarea w
 - [Seats](https://solarecho3.github.io/essays/seats.html): Seats by party at the start of each Congress, from 1789 to 2027, for the House and the Senate. The 2027 points are Associated Press calls as of 5 November 2026. Linked from the Ideologies entry. Published 2026-11-05.
 
 ## Media
+- [NEXT GENERATION](https://www.youtube.com/watch?v=-PBb25IUQ2A): I narrate this documentary on what it takes to earn the Green Beret
 - [ORRERY](https://www.youtube.com/watch?v=6sb8hURYN4Q): Exploring visual communication for Larx, a data intelligence startup
 - [TOWN](https://x.com/solarecho3/status/2123992226485108744): I printed my town from a USGS 3DEP 1 meter bare-earth digital elevation model, 2,600 x 1,596 meters, ~200 meters of elevation
 - [CHIRP](https://x.com/solarecho3/status/2123923335088382173): The earliest vectors of a SAR image with progressive rendering show the oscillating FFT spectrum of the chirp waveform
