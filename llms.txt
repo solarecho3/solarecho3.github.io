@@ -5,7 +5,7 @@
 The full prose of each journal entry is in that page’s HTML, in the textarea with id `essay-source`. The Ideologies chart and the seat-count chart are drawn in the browser. The written explanation of the Ideologies chart is the prose in `essay-source`.
 
 ## Key facts
-- Current role: Chief Technology Officer, Larx (https://larx.io) — intelligence / decision intelligence platform
+- Current role: Chief Technology Officer, Larx (https://larx.io) — venture-backed intelligence / decision intelligence platform
 - Prior: Applied AI Engineer, USSOCOM Intelligence Data Science Team (2021–2025)
 - Military: US Army Special Forces (Green Beret), 2007–2023; Ranger, Jumpmaster, Combat Diver; combat valor awards
 - Focus areas: agentic systems, visual AI, multi-source intelligence fusion, operational decision support
